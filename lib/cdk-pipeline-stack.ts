@@ -7,42 +7,38 @@ import { CdkEBStage } from './eb-stage';
  * The stack that defines the application pipeline
  */
 export class CdkPipelineStack extends Stack {
-  constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props);
+    constructor(scope: Construct, id: string, props?: StackProps) {
+        super(scope, id, props);
 
-    const pipeline = new CodePipeline(this, 'Pipeline', {
-      // The pipeline name
-      pipelineName: 'MyServicePipeline',
+        const pipeline = new CodePipeline(this, 'Pipeline', {
+            // The pipeline name
+            pipelineName: 'MyServicePipeline',
 
-       // How it will be built and synthesized
-       synth: new ShellStep('Synth', {
-         // Where the source can be found
-         input: CodePipelineSource.gitHub('OWNER/REPO', 'main'),
-         
-         // Install dependencies, build and run cdk synth
-         installCommands: ['npm i -g npm@latest'],
-         commands: [
-           'npm ci',
-           'npm run build',
-           'npx cdk synth'
-         ],
-       }),
-    });
+            // How it will be built and synthesized
+            synth: new ShellStep('Synth', {
+                // Where the source can be found
+                input: CodePipelineSource.gitHub('OWNER/REPO', 'main'),
 
-    // This is where we add the application stages
-    // This is where we add the application stages
+                // Install dependencies, build and run cdk synth
+                installCommands: ['npm i -g npm@latest'],
+                commands: [
+                    'npm ci',
+                    'npm run build',
+                    'npx cdk synth'
+                ],
+            }),
+        });
 
-    // deploy beanstalk app
-    // For environment with all default values:
-    // const deploy = new CdkEBStage(this, 'Pre-Prod');
+        // This is where we add the application stages
+        // deploy beanstalk app
+        // For environment with all default values:
+        // const deploy = new CdkEBStage(this, 'Pre-Prod');
 
-    // For environment with custom AutoScaling group configuration
-    const deploy = new CdkEBStage(this, 'Pre-Prod', { 
-        minSize : "1",
-        maxSize : "2"
-    });
-    const deployStage = pipeline.addStage(deploy); 
-
-  }
+        // For environment with custom AutoScaling group configuration
+        const deploy = new CdkEBStage(this, 'Pre-Prod', {
+            minSize : "1",
+            maxSize : "2"
+        });
+        const deployStage = pipeline.addStage(deploy);
+    }
 }
-
